@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  php:
+    image: php:8.1-alpine
+
+  nginx:
+    image: nginx:1.23-alpine
+
+  adminer:
+    image: woahbase/alpine-adminer:latest
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    ports:
+      - "5432:5432"
