@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  nginx:
+    image: nginx:stable-alpine
+    depends_on:
+      - php
+      - adminer
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+
+  php:
+    image: php:8.1-alpine
+
+  adminer:
+    image: adminer
