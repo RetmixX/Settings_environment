@@ -1,6 +1,7 @@
 version: '3'
 
 services:
+
   nginx:
     image: nginx:stable-alpine
     ports:
@@ -20,3 +21,15 @@ services:
       - ./src:/var/www/html
     networks:
       - default
+
+  adminer:
+    image: adminer:4.8.1
+    ports:
+      - "8080:8080"
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
