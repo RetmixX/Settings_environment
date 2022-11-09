@@ -5,31 +5,35 @@ services:
   nginx:
     image: nginx:stable-alpine
     ports:
-      - "80:80"
+      - ${PORT_NGINX}
     volumes:
+#      - ./images/nginx/nginx.conf:/etc/nginx/templates/conf.d/nginx.conf.template
+      - ./images/nginx/nginx.conf:/etc/nginx/templates
       - ./images/nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
-    networks:
-      - default
+    environment:
+        PORT_PHP: ${PORT_PHP:- 7000}
+        PORT_ADMINER: ${PORT_ADMINER:- 8080}
     depends_on:
       - php
       - adminer
 
   php:
     build: images/php
-    volumes:
-      - ./images/php/php.ini:/usr/local/etc/php.ini
-      - ./src:/var/www/html
-    networks:
-      - default
+    entrypoint:
+      - php
+      - -S
+      - 0.0.0.0:${PORT_PHP:- 7000}
+      - -t
+      - /var/www/html
 
   adminer:
     image: adminer:4.8.1
     ports:
-      - "8080:8080"
+      - ${PORT_ADMINER:- 8080}
 
   postgres:
     image: postgres:15-alpine
     environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME:- user}
+      POSTGRES_USER: ${DB_USER:- user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:- 12345}
