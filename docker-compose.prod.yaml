@@ -2,21 +2,28 @@ version: '3'
 
 services:
   nginx:
-    image: nginx:stable-alpine
+    image: nginx:1.23-alpine
     ports:
-      - "80:80"
+      - "${PORT_NGINX:-80:80}"
     volumes:
-      - ./images/nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
-    networks:
-      - default
+      - ./images/nginx/nginx.conf:/etc/nginx/templates/default.conf.template
+    environment:
+      PORT_PHP: ${PORT_PHP:- 7000}
+      PORT_ADMINER: ${PORT_ADMINER:- 8080}
     depends_on:
       - php
       - adminer
 
   php:
     build: images/php
-    volumes:
-      - ./images/php/php.ini:/usr/local/etc/php.ini
-      - ./src:/var/www/html
-    networks:
-      - default
+    entrypoint:
+      - php
+      - -S
+      - 0.0.0.0:${PORT_PHP:- 7000}
+      - -t
+      - /var/www/html
+
+  adminer:
+    image: adminer:4.8.1
+    ports:
+      - ${PORT_ADMINER:- 8080}

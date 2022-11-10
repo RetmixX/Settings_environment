@@ -3,13 +3,11 @@ version: '3'
 services:
 
   nginx:
-    image: nginx:stable-alpine
+    image: nginx:1.23-alpine
     ports:
       - ${PORT_NGINX}
     volumes:
-#      - ./images/nginx/nginx.conf:/etc/nginx/templates/conf.d/nginx.conf.template
-      - ./images/nginx/nginx.conf:/etc/nginx/templates
-      - ./images/nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
+      - ./images/nginx/nginx.conf:/etc/nginx/templates/default.conf.template
     environment:
         PORT_PHP: ${PORT_PHP:- 7000}
         PORT_ADMINER: ${PORT_ADMINER:- 8080}
@@ -18,7 +16,9 @@ services:
       - adminer
 
   php:
-    build: images/php
+    build: php:8.1-alpine
+    volumes:
+      - ./src:/var/www/html
     entrypoint:
       - php
       - -S
