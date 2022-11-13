@@ -1,29 +1,44 @@
-version: '3'
+version: "3"
 
 services:
-  nginx:
-    image: nginx:1.23-alpine
-    ports:
-      - "${PORT_NGINX:-80:80}"
-    volumes:
-      - ./images/nginx/nginx.conf:/etc/nginx/templates/default.conf.template
-    environment:
-      PORT_PHP: ${PORT_PHP:- 7000}
-      PORT_ADMINER: ${PORT_ADMINER:- 8080}
-    depends_on:
-      - php
-      - adminer
 
   php:
-    build: images/php
-    entrypoint:
-      - php
-      - -S
-      - 0.0.0.0:${PORT_PHP:- 7000}
-      - -t
-      - /var/www/html
+    build:
+      context: .
+      dockerfile: ./Images/php/Dockerfile
+    depends_on:
+      - postgres
+    networks:
+      - retmix
 
-  adminer:
-    image: adminer:4.8.1
+  nginx:
+    build:
+      context: .
+      dockerfile: ./Images/nginx/Dockerfile
+      args:
+        NGINX_SERVER: ${NGINX_SERVER:-localhost}
     ports:
-      - ${PORT_ADMINER:- 8080}
+      - "${PORT_NGINX:-80}:80"
+      - "${PORT_SSL:-443}:443"
+    networks:
+      - retmix
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ${DB_NAME:-postgres}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-12345}
+    volumes:
+      - dbData:/var/lib/postgres
+    ports:
+      - "${PORT_DB:-5432}:5432"
+    networks:
+      - retmix
+volumes:
+  dbData:
+    driver: local
+
+networks:
+  retmix:
+    driver: bridge
