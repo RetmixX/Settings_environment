@@ -14,7 +14,7 @@ services:
   nginx:
     build:
       context: .
-      dockerfile: ./Images/nginx/Dockerfile
+      dockerfile: Images/nginx/prod.Dockerfile
       args:
         NGINX_SERVER: ${NGINX_SERVER:-localhost}
     ports:
